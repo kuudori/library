@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Page Title</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="container text-white " style="background: #f7f7f9">
+         <table class="table" id="Books">
+            <thead>
+               <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Author</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Published</th>
+               </tr>
+            </thead>
+            <tbody>
+            </tbody>
+         </table>
+         <div class="container p-5">
+            <div class="row" style="color:black">
+               <div class="col-sm">
+                  <input  class="form-control" id="title" placeholder="Title">
+               </div>
+               <div class="col-lg-3">
+                  <input class="form-control" id="published_date" placeholder="Published date (YYYY-MM-DD)">
+               </div>
+               <div class="col-lg-2">
+                  <select class="form-select" aria-label="Default select example">
+                  </select>
+               </div>
+               <div class="col-sm-2">
+                  <button type="button" style="float: right;" class="btn btn-primary" onclick="addBook()">Add Book</button>
+               </div>
+            </div>
+            <hr>
+            <div class="row" style="color:black">
+               <div class="col-sm">
+                  <input  class="form-control" id="name" placeholder="Author Name">
+               </div>
+               <div class="col-sm-2">
+                  <button type="button" style="float: right;" class="btn btn-primary" onclick="addAuthor()">Add Author</button>
+               </div>
+            </div>
+         </div>
+         <div class="alert alert-primary w-50 d-flex justify-content-center m-auto" role="alert">
+            1. Pick existing author or add new!
+         </div>
+         <div class="alert alert-primary w-50 d-flex justify-content-center m-auto" role="alert">
+            2. To delete book, click on necessary row!
+         </div>
+      </div>
+   </body>
+   <script>
+      $('#Books').on('click', 'tr', function() {
+          var selected_row = ($(this)[0].innerText);
+          var arr = selected_row.split("\t");
+          delBook(arr);
+      });
+
+
+      $.ajax({
+          url: 'api/bookslist',
+          datatype: 'json',
+          type: 'GET',
+          success: function(data) {
+
+              for (var i = 0; i < data.length; i++) {
+                  var obj = data[i];
+                  var row = ``;
+                  for (var key in obj) {
+                      var row_data = `<th scope="col">${obj[key]}</th>`;
+                      if (obj[key].hasOwnProperty("name")) {
+                          row_data = `<th scope="col">${obj[key]["name"]}</th>`;
+                      }
+
+
+
+                      row = row + row_data;
+                  }
+                  $
+                  $('#Books').append(`<tr id=${obj["id"]}>${row}</tr>`);
+              }
+          }
+      });
+
+
+      $.ajax({
+          url: 'api/authorslist',
+          datatype: 'json',
+          type: 'GET',
+          success: function(data) {
+
+              for (var i = 0; i < data.length; i++) {
+                  var obj = data[i];
+                  for (var key in obj) {
+                      $('.form-select').append(`<option value="${i}">${obj[key]}</option>`);
+                  }
+              }
+          }
+      });
+
+      function addBook() {
+
+          let title = $('#title').val()
+          let issue_date = $('#published_date').val()
+          let author = $('.form-select').find(":selected").text();
+          $.ajax({
+                  url: 'api/bookslist/add',
+                  datatype: 'json',
+                  data: {
+                      "title": title,
+                      "issue_date": issue_date,
+                      "author": author
+                  },
+                  type: 'PUT',
+              })
+
+              .done(function(data) {
+                  $('#Books').append(`<tr id=${data["id"]}><th scope="col">${data["id"]}</th><th scope="col">${data["author"]}</th><th scope="col">${data["title"]}</th><th scope="col">${data["issue_date"]}</th></tr>`)
+              })
+              .fail(function(jqXHR, textStatus, errorThrown) {
+                  alert(jqXHR.responseText)
+              });
+      }
+
+      function delBook(data) {
+          $.ajax({
+              url: 'api/bookslist/del',
+              datatype: 'json',
+              data: {
+                  "title": data[2],
+                  "issue_date": data[3],
+                  "author": data[1]
+              },
+              type: 'DELETE',
+              success: function() {
+
+                  $(`#${data[0]}`).remove()
+              }
+
+          });
+      }
+
+      function addAuthor() {
+          let name = $('#name').val()
+          $.ajax({
+                  url: 'api/authorslist/add',
+                  datatype: 'json',
+                  data: {
+                      "name": name
+                  },
+                  type: 'PUT',
+              })
+
+              .done(function(data) {
+                  $('.form-select').append(`<option value="${data["id"]}">${data["name"]}</option>`);
+              })
+              .fail(function(jqXHR, textStatus, errorThrown) {
+                  alert(jqXHR.responseText)
+              });
+      }
+   </script>
+</html>
