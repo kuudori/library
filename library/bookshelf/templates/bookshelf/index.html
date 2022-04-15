@@ -117,7 +117,7 @@
                       "issue_date": issue_date,
                       "author": author
                   },
-                  type: 'PUT',
+                  type: 'POST',
               })
 
               .done(function(data) {
@@ -130,13 +130,9 @@
 
       function delBook(data) {
           $.ajax({
-              url: 'api/bookslist/del',
+              url: `api/bookslist/del/${data[0]}`,
               datatype: 'json',
-              data: {
-                  "title": data[2],
-                  "issue_date": data[3],
-                  "author": data[1]
-              },
+              data: {},
               type: 'DELETE',
               success: function() {
 
@@ -154,7 +150,7 @@
                   data: {
                       "name": name
                   },
-                  type: 'PUT',
+                  type: 'POST',
               })
 
               .done(function(data) {

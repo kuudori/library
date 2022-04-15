@@ -20,9 +20,9 @@ from . import views
 urlpatterns = [
     path('', views.BookListPage.as_view(template_name='index.html')),
     path('api/bookslist', views.BookListView.as_view()),
-    path('api/bookslist/add', views.BookApi.as_view()),
-    path('api/bookslist/del', views.BookApi.as_view()),
+    path('api/bookslist/add', views.BookListView.as_view()),
+    path('api/bookslist/del/<int:pk>', views.BookDestroyView.as_view()),
     path('api/authorslist', views.AuthorsListView.as_view()),
-    path('api/authorslist/add', views.AuthorApi.as_view())
+    path('api/authorslist/add', views.AuthorsListView.as_view())
 
 ]

@@ -8,21 +8,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
 
 
-class AuthorCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Author
-        fields = '__all__'
-
-
 class BookSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer()
-
-    class Meta:
-        model = Book
-        fields = '__all__'
-
-
-class BookCreateSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         queryset=Author.objects.all(),
         slug_field='name'
